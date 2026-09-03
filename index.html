@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Kalkulatory Home Lab&Fix — interaktywny poradnik budowlany z kalkulatorami, wzorami i przykładami." />
+  <title>Kalkulatory Home Lab&Fix</title>
+  <style>
+    :root{
+      --bg:#f6f7f9;
+      --surface:#ffffff;
+      --surface-2:#fff8e8;
+      --ink:#111820;
+      --muted:#66707c;
+      --line:#e5e8ec;
+      --navy:#07131e;
+      --yellow:#ffb703;
+      --yellow-2:#ffd15c;
+      --blue:#2563eb;
+      --green:#248a52;
+      --radius:22px;
+      --shadow:0 12px 40px rgba(7,19,30,.08);
+      --max:1180px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      color:var(--ink);
+      background:linear-gradient(180deg,#fff 0,#f7f8fa 40%,#f2f4f7 100%);
+    }
+    button,input,select{font:inherit}
+    a{color:inherit;text-decoration:none}
+    .wrap{width:min(var(--max),calc(100% - 32px));margin:auto}
+    .topbar{
+      position:sticky;top:0;z-index:50;
+      background:rgba(7,19,30,.95);backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(255,255,255,.08)
+    }
+    .topbar-inner{min-height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+    .brand{display:flex;align-items:center;gap:12px;color:#fff;font-weight:900;letter-spacing:.01em}
+    .brand-mark{
+      width:48px;height:48px;border:3px solid var(--yellow);border-radius:12px;
+      display:grid;place-items:center;color:var(--yellow);font-size:24px;font-weight:900;
+    }
+    .brand span b{color:var(--yellow)}
+    .nav{display:flex;gap:22px;color:#eef3f8;font-weight:700;font-size:14px}
+    .nav a:hover{color:var(--yellow)}
+    .hero{padding:56px 0 34px}
+    .hero-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:28px;align-items:center}
+    .eyebrow{display:inline-flex;gap:8px;align-items:center;padding:8px 12px;border-radius:999px;background:#fff4cf;color:#785400;font-weight:800;font-size:13px}
+    h1{font-size:clamp(42px,7vw,78px);line-height:.95;margin:18px 0 18px;letter-spacing:-.05em}
+    h1 .accent{color:var(--yellow)}
+    .lead{font-size:18px;line-height:1.65;color:#4d5865;max-width:760px}
+    .hero-card{
+      background:linear-gradient(145deg,#101d29,#07131e);
+      color:#fff;border-radius:30px;padding:28px;box-shadow:var(--shadow);min-height:290px;
+      display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;position:relative
+    }
+    .hero-card:after{
+      content:"";position:absolute;width:280px;height:280px;border-radius:50%;
+      background:radial-gradient(circle,var(--yellow) 0,rgba(255,183,3,.3) 32%,transparent 68%);
+      right:-100px;bottom:-120px
+    }
+    .hero-icons{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;position:relative;z-index:2}
+    .hero-icon{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);padding:14px;border-radius:16px;text-align:center}
+    .hero-icon strong{display:block;font-size:28px;margin-bottom:6px}
+    .search{
+      margin-top:28px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:8px;
+      display:flex;gap:8px;box-shadow:var(--shadow)
+    }
+    .search input{border:0;outline:0;flex:1;padding:14px 14px;font-size:16px;min-width:0}
+    .btn{border:0;border-radius:14px;padding:14px 20px;background:var(--yellow);color:#111;font-weight:900;cursor:pointer}
+    .btn:hover{filter:brightness(.97);transform:translateY(-1px)}
+    section{padding:34px 0}
+    .section-head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:18px}
+    .section-head h2{margin:0;font-size:30px;letter-spacing:-.03em}
+    .section-head p{margin:0;color:var(--muted)}
+    .categories{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .category{
+      background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;cursor:pointer;
+      transition:.2s ease;min-height:150px;box-shadow:0 6px 20px rgba(7,19,30,.04)
+    }
+    .category:hover,.category.active{transform:translateY(-3px);border-color:#f0bf42;box-shadow:var(--shadow)}
+    .cat-icon{font-size:28px}
+    .category h3{margin:12px 0 6px;font-size:18px}
+    .category p{margin:0;color:var(--muted);font-size:14px;line-height:1.5}
+    .panel{background:var(--surface);border:1px solid var(--line);border-radius:24px;padding:22px;box-shadow:var(--shadow)}
+    .tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+    .tab{border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 14px;font-weight:800;cursor:pointer}
+    .tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+    .calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .calc-list{display:grid;gap:10px;align-content:start}
+    .calc-item{
+      border:1px solid var(--line);border-radius:16px;padding:15px;background:#fff;cursor:pointer;
+      display:flex;justify-content:space-between;gap:16px;align-items:center
+    }
+    .calc-item:hover,.calc-item.active{border-color:#f4c348;background:#fffaf0}
+    .calc-item small{display:block;color:var(--muted);margin-top:4px}
+    .calc-box{border:1px solid var(--line);border-radius:18px;padding:20px;background:#fbfcfd}
+    .calc-box h3{margin-top:0;font-size:24px}
+    .formula{
+      background:#eef2f6;border-radius:12px;padding:12px 14px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
+      color:#2b3642;margin:12px 0 18px;overflow:auto
+    }
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field label{display:block;font-size:13px;font-weight:800;margin-bottom:6px}
+    .field input,.field select{width:100%;padding:12px 13px;border:1px solid #d8dde3;border-radius:12px;background:#fff;outline:none}
+    .field input:focus,.field select:focus{border-color:#e3a900;box-shadow:0 0 0 3px rgba(255,183,3,.15)}
+    .result{margin-top:18px;padding:16px;border-radius:16px;background:#fff4cf;border:1px solid #f5cf69}
+    .result strong{font-size:26px;display:block;margin-top:5px}
+    .steps{margin-top:10px;color:#5a6470;line-height:1.6}
+    .notice{margin-top:18px;padding:14px 16px;border-radius:14px;background:#f2f6fb;color:#46515d;font-size:13px}
+    .popular{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .mini{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px}
+    .mini b{display:block;margin-bottom:7px}
+    .social{
+      background:linear-gradient(145deg,#07131e,#112437);color:#fff;border-radius:28px;padding:28px;
+      display:grid;grid-template-columns:1fr 1fr;gap:20px
+    }
+    .social h2{margin-top:0}
+    .social-card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:18px;padding:18px}
+    .social-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+    .social-links a{padding:10px 13px;background:#fff;color:#111;border-radius:12px;font-weight:900;display:inline-flex;gap:8px;align-items:center}
+    .footer{padding:28px 0 110px;color:#6c7580;font-size:13px}
+    .mobile-nav{display:none}
+    @media (max-width:900px){
+      .nav{display:none}
+      .hero-grid,.calc-grid,.social{grid-template-columns:1fr}
+      .categories{grid-template-columns:repeat(2,1fr)}
+      .popular{grid-template-columns:1fr}
+      .hero{padding-top:32px}
+    }
+    @media (max-width:620px){
+      .wrap{width:min(100% - 20px,var(--max))}
+      .topbar-inner{min-height:64px}
+      .brand-mark{width:38px;height:38px}
+      .brand span{font-size:14px}
+      .hero{padding:26px 0 18px}
+      h1{font-size:44px}
+      .lead{font-size:16px}
+      .hero-card{min-height:220px;padding:20px}
+      .search .btn{padding-inline:14px}
+      .categories{grid-template-columns:1fr 1fr;gap:10px}
+      .category{padding:14px;min-height:138px}
+      .fields{grid-template-columns:1fr}
+      .panel{padding:14px}
+      .section-head{align-items:start;flex-direction:column}
+      .mobile-nav{
+        display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;z-index:60;
+        background:rgba(255,255,255,.97);border-top:1px solid var(--line);backdrop-filter:blur(12px)
+      }
+      .mobile-nav a{padding:10px 5px;text-align:center;font-size:11px;font-weight:800;color:#53606d}
+      .mobile-nav a span{display:block;font-size:20px;margin-bottom:2px}
+      .footer{padding-bottom:100px}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <a class="brand" href="#start" aria-label="Kalkulatory Home Lab&Fix">
+        <div class="brand-mark">HL</div>
+        <span>HOME LAB&FIX<br><b>KALKULATORY</b></span>
+      </a>
+      <nav class="nav">
+        <a href="#kalkulatory">Kalkulatory</a>
+        <a href="#kategorie">Kategorie</a>
+        <a href="#popularne">Popularne</a>
+        <a href="#social">Social media</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="start">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <span class="eyebrow">🧰 Interaktywny poradnik budowlany</span>
+          <h1>Oblicz. Zrozum. <span class="accent">Zbuduj.</span></h1>
+          <p class="lead">
+            Kalkulatory, wzory i przykłady dla najczęstszych obliczeń budowlanych.
+            Wybierz kategorię, wpisz dane i zobacz wynik wraz ze sposobem obliczenia.
+          </p>
+          <div class="search">
+            <input id="globalSearch" type="search" placeholder="Czego chcesz obliczyć? np. beton, farba, dach, schody..." />
+            <button class="btn" onclick="searchCalculators()">Szukaj</button>
+          </div>
+        </div>
+        <aside class="hero-card">
+          <div>
+            <div style="font-size:14px;color:#ced7df;font-weight:800">Wszystko w jednym miejscu</div>
+            <h2 style="font-size:32px;margin:8px 0 10px">Poradnik, który liczy razem z Tobą.</h2>
+            <p style="color:#c9d4dd;line-height:1.6">Szybkie obliczenia na telefonie, tablecie i komputerze — bez logowania.</p>
+          </div>
+          <div class="hero-icons">
+            <div class="hero-icon"><strong>∑</strong><small>Wzory</small></div>
+            <div class="hero-icon"><strong>🧮</strong><small>Kalkulatory</small></div>
+            <div class="hero-icon"><strong>✓</strong><small>Przykłady</small></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section id="kategorie">
+      <div class="wrap">
+        <div class="section-head">
+          <div><h2>Kategorie obliczeń</h2><p>Wybierz dział, aby zobaczyć dostępne kalkulatory.</p></div>
+        </div>
+        <div class="categories" id="categoryGrid"></div>
+      </div>
+    </section>
+
+    <section id="kalkulatory">
+      <div class="wrap">
+        <div class="section-head">
+          <div><h2 id="categoryTitle"></h2><p id="categoryDesc"></p></div>
+        </div>
+        <div class="panel">
+          <div class="tabs" id="tabs"></div>
+          <div class="calc-grid">
+            <div class="calc-list" id="calcList"></div>
+            <div class="calc-box" id="calcBox"></div>
+          </div>
+          <div class="notice">
+            Wyniki mają charakter orientacyjny. Obliczenia projektowe, konstrukcyjne i instalacyjne powinny być zweryfikowane przez osobę z odpowiednimi uprawnieniami oraz zgodnie z aktualnymi normami i wymaganiami.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="popularne">
+      <div class="wrap">
+        <div class="section-head"><div><h2>Najpopularniejsze</h2><p>Szybki dostęp do przydatnych obliczeń.</p></div></div>
+        <div class="popular">
+          <div class="mini"><b>🧱 Beton na fundament</b><span>Objętość ławy, płyty lub stopy + zapas materiału.</span></div>
+          <div class="mini"><b>📐 Spadek w %</b><span>Różnica wysokości, długość i wynik w procentach.</span></div>
+          <div class="mini"><b>🪜 Schody</b><span>Wysokość stopnia, liczba stopni i długość biegu.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="social">
+      <div class="wrap">
+        <div class="social">
+          <div>
+            <h2>Home Lab&Fix</h2>
+            <p style="color:#c9d4dd;line-height:1.65">Więcej porad, grafik, obliczeń i inspiracji budowlanych znajdziesz w social mediach.</p>
+          </div>
+          <div class="social-card">
+            <b>Social media</b>
+            <div class="social-links">
+              <a href="https://facebook.com/homelabfix" target="_blank" rel="noopener">Facebook</a>
+              <a href="https://www.tiktok.com/@homelabfix" target="_blank" rel="noopener">TikTok</a>
+              <a href="https://www.instagram.com/homelabfix" target="_blank" rel="noopener">Instagram</a>
+              <a href="https://facebook.com/domotwornia" target="_blank" rel="noopener">Domotwórnia</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="mobile-nav">
+    <a href="#start"><span>⌂</span>Start</a>
+    <a href="#kategorie"><span>▦</span>Kategorie</a>
+    <a href="#kalkulatory"><span>🧮</span>Kalk.</a>
+    <a href="#social"><span>↗</span>Social</a>
+  </nav>
+
+  <footer class="footer">
+    <div class="wrap">© Home Lab&Fix — Kalkulatory budowlane. Strona statyczna HTML/CSS/JS, gotowa pod GitHub Pages, Netlify i Cloudflare Pages.</div>
+  </footer>
+
+  <script>
+    const categories = [
+      {
+        id:'materialy', icon:'🧱', title:'Materiały', desc:'Beton, bloczki, farba, zaprawa, płyty.',
+        calculators:[
+          {
+            id:'beton', name:'Beton — objętość', note:'Ławy, płyty, stopy, słupy.',
+            formula:'V = długość × szerokość × wysokość',
+            fields:[
+              ['length','Długość [m]',4],
+              ['width','Szerokość [m]',0.4],
+              ['height','Wysokość / grubość [m]',0.3],
+              ['waste','Zapas [%]',10]
+            ],
+            calc:v=>{
+              const volume=v.length*v.width*v.height;
+              const total=volume*(1+v.waste/100);
+              return {
+                value: total.toFixed(3)+' m³',
+                steps:`Objętość podstawowa: ${v.length} × ${v.width} × ${v.height} = ${volume.toFixed(3)} m³<br>Z zapasem ${v.waste}%: ${total.toFixed(3)} m³`
+              }
+            }
+          },
+          {
+            id:'farba', name:'Farba — powierzchnia ścian', note:'Ilość litrów na malowanie.',
+            formula:'Litry = powierzchnia × liczba warstw / wydajność',
+            fields:[
+              ['area','Powierzchnia [m²]',40],
+              ['coats','Liczba warstw',2],
+              ['coverage','Wydajność [m²/l]',10],
+              ['waste','Zapas [%]',10]
+            ],
+            calc:v=>{
+              const liters=(v.area*v.coats/v.coverage)*(1+v.waste/100);
+              return {value:liters.toFixed(1)+' l',steps:`${v.area} m² × ${v.coats} warstwy / ${v.coverage} m²/l = ${(v.area*v.coats/v.coverage).toFixed(1)} l<br>Z zapasem ${v.waste}%: ${liters.toFixed(1)} l`}
+            }
+          },
+          {
+            id:'bloczek', name:'Bloczki — ilość sztuk', note:'Ściana z bloczków lub pustaków.',
+            formula:'szt. = powierzchnia ściany / powierzchnia bloczka',
+            fields:[
+              ['wallArea','Powierzchnia ściany [m²]',20],
+              ['blockLength','Długość bloczka [m]',0.5],
+              ['blockHeight','Wysokość bloczka [m]',0.24],
+              ['waste','Zapas [%]',8]
+            ],
+            calc:v=>{
+              const one=v.blockLength*v.blockHeight;
+              const pcs=Math.ceil((v.wallArea/one)*(1+v.waste/100));
+              return {value:pcs+' szt.',steps:`Powierzchnia bloczka: ${v.blockLength} × ${v.blockHeight} = ${one.toFixed(3)} m²<br>Ilość z zapasem: ${pcs} szt.`}
+            }
+          }
+        ]
+      },
+      {
+        id:'dach', icon:'🏠', title:'Dach', desc:'Spadki, powierzchnie połaci, obciążenia orientacyjne.',
+        calculators:[
+          {
+            id:'pow-dachu', name:'Powierzchnia połaci', note:'Dach dwuspadowy — orientacyjnie.',
+            formula:'A = długość kalenicy × długość krokwi × 2',
+            fields:[
+              ['ridge','Długość kalenicy [m]',8],
+              ['rafter','Długość krokwi [m]',5],
+              ['waste','Zapas [%]',10]
+            ],
+            calc:v=>{
+              const area=v.ridge*v.rafter*2;
+              const total=area*(1+v.waste/100);
+              return {value:total.toFixed(1)+' m²',steps:`Powierzchnia bez zapasu: ${v.ridge} × ${v.rafter} × 2 = ${area.toFixed(1)} m²<br>Z zapasem ${v.waste}%: ${total.toFixed(1)} m²`}
+            }
+          },
+          {
+            id:'spadek-dachu', name:'Spadek dachu', note:'Wynik w procentach i stopniach.',
+            formula:'spadek % = wysokość / długość × 100',
+            fields:[
+              ['rise','Różnica wysokości [m]',1.2],
+              ['run','Poziomy bieg [m]',4]
+            ],
+            calc:v=>{
+              const percent=v.rise/v.run*100;
+              const deg=Math.atan(v.rise/v.run)*180/Math.PI;
+              return {value:percent.toFixed(1)+'% / '+deg.toFixed(1)+'°',steps:`Spadek: ${v.rise} / ${v.run} × 100 = ${percent.toFixed(1)}%<br>Kąt: arctan(${v.rise}/${v.run}) = ${deg.toFixed(1)}°`}
+            }
+          },
+          {
+            id:'rynna', name:'Spadek rynny', note:'Różnica wysokości na długości rynny.',
+            formula:'h = długość × spadek [mm/m]',
+            fields:[
+              ['length','Długość rynny [m]',10],
+              ['slope','Spadek [mm/m]',3]
+            ],
+            calc:v=>{
+              const h=v.length*v.slope;
+              return {value:h.toFixed(0)+' mm',steps:`${v.length} m × ${v.slope} mm/m = ${h.toFixed(0)} mm różnicy wysokości`}
+            }
+          }
+        ]
+      },
+      {
+        id:'schody', icon:'🪜', title:'Schody', desc:'Stopnie, bieg, wysokości i ergonomia.',
+        calculators:[
+          {
+            id:'liczba-stopni', name:'Liczba stopni', note:'Dobór wysokości stopnia.',
+            formula:'n = wysokość kondygnacji / wysokość stopnia',
+            fields:[
+              ['height','Wysokość do pokonania [cm]',280],
+              ['step','Docelowa wysokość stopnia [cm]',17.5]
+            ],
+            calc:v=>{
+              const n=Math.round(v.height/v.step);
+              const real=v.height/n;
+              return {value:n+' stopni',steps:`280 cm / 17,5 cm ≈ ${n}<br>Rzeczywista wysokość stopnia: ${v.height} / ${n} = ${real.toFixed(1)} cm`}
+            }
+          },
+          {
+            id:'bieg-schodow', name:'Długość biegu', note:'Orientacyjna długość w rzucie.',
+            formula:'L = liczba stopni × głębokość stopnia',
+            fields:[
+              ['steps','Liczba stopni',16],
+              ['tread','Głębokość stopnia [cm]',28]
+            ],
+            calc:v=>{
+              const l=v.steps*v.tread/100;
+              return {value:l.toFixed(2)+' m',steps:`${v.steps} × ${v.tread} cm = ${(v.steps*v.tread).toFixed(0)} cm = ${l.toFixed(2)} m`}
+            }
+          },
+          {
+            id:'ergonomia', name:'Wzór wygody schodów', note:'2h + s — kontrola ergonomii.',
+            formula:'2 × wysokość + szerokość = 60–65 cm',
+            fields:[
+              ['h','Wysokość stopnia [cm]',17],
+              ['s','Szerokość stopnia [cm]',29]
+            ],
+            calc:v=>{
+              const x=2*v.h+v.s;
+              const ok=x>=60&&x<=65;
+              return {value:x.toFixed(1)+' cm',steps:`2 × ${v.h} + ${v.s} = ${x.toFixed(1)} cm<br>${ok?'✅ Zakres wygodny orientacyjnie.':'⚠️ Poza typowym zakresem 60–65 cm.'}`}
+            }
+          }
+        ]
+      },
+      {
+        id:'spadki', icon:'📐', title:'Spadki i poziomy', desc:'Procenty, promile, różnice wysokości.',
+        calculators:[
+          {
+            id:'spadek-procent', name:'Spadek w %', note:'Tarasy, posadzki, rury.',
+            formula:'spadek % = różnica wysokości / długość × 100',
+            fields:[
+              ['drop','Różnica wysokości [cm]',4],
+              ['length','Długość [m]',4]
+            ],
+            calc:v=>{
+              const p=(v.drop/100)/v.length*100;
+              return {value:p.toFixed(2)+'%',steps:`${v.drop} cm = ${(v.drop/100).toFixed(2)} m<br>${(v.drop/100).toFixed(2)} / ${v.length} × 100 = ${p.toFixed(2)}%`}
+            }
+          },
+          {
+            id:'roznica-wys', name:'Różnica wysokości', note:'Z długości i spadku.',
+            formula:'h = długość × spadek / 100',
+            fields:[
+              ['length','Długość [m]',6],
+              ['slope','Spadek [%]',2]
+            ],
+            calc:v=>{
+              const h=v.length*v.slope/100;
+              return {value:(h*100).toFixed(1)+' cm',steps:`${v.length} × ${v.slope}% = ${h.toFixed(3)} m = ${(h*100).toFixed(1)} cm`}
+            }
+          },
+          {
+            id:'promile', name:'Spadek w promilach', note:'Instalacje kanalizacyjne — orientacyjnie.',
+            formula:'‰ = różnica wysokości / długość × 1000',
+            fields:[
+              ['drop','Różnica wysokości [cm]',3],
+              ['length','Długość [m]',2]
+            ],
+            calc:v=>{
+              const pm=(v.drop/100)/v.length*1000;
+              return {value:pm.toFixed(1)+'‰',steps:`${v.drop} cm = ${(v.drop/100).toFixed(2)} m<br>${(v.drop/100).toFixed(2)} / ${v.length} × 1000 = ${pm.toFixed(1)}‰`}
+            }
+          }
+        ]
+      },
+      {
+        id:'drewno', icon:'🪵', title:'Drewno i konstrukcje', desc:'Belki, łaty, deski, rozstawy.',
+        calculators:[
+          {
+            id:'deski', name:'Ilość desek na powierzchnię', note:'Taras, elewacja, podłoga.',
+            formula:'szt. = powierzchnia / powierzchnia jednej deski',
+            fields:[
+              ['area','Powierzchnia [m²]',24],
+              ['boardWidth','Szerokość deski [m]',0.145],
+              ['boardLength','Długość deski [m]',4],
+              ['waste','Zapas [%]',10]
+            ],
+            calc:v=>{
+              const one=v.boardWidth*v.boardLength;
+              const pcs=Math.ceil((v.area/one)*(1+v.waste/100));
+              return {value:pcs+' szt.',steps:`Jedna deska: ${v.boardWidth} × ${v.boardLength} = ${one.toFixed(3)} m²<br>Ilość z zapasem: ${pcs} szt.`}
+            }
+          },
+          {
+            id:'laty', name:'Liczba łat', note:'Z długości połaci i rozstawu.',
+            formula:'n = długość połaci / rozstaw + 1',
+            fields:[
+              ['length','Długość połaci [m]',5],
+              ['spacing','Rozstaw łat [cm]',35]
+            ],
+            calc:v=>{
+              const n=Math.ceil(v.length/(v.spacing/100))+1;
+              return {value:n+' szt.',steps:`${v.spacing} cm = ${(v.spacing/100).toFixed(2)} m<br>${v.length} / ${(v.spacing/100).toFixed(2)} + 1 ≈ ${n} łat`}
+            }
+          },
+          {
+            id:'legary', name:'Liczba legarów', note:'Taras — orientacyjny rozstaw.',
+            formula:'n = szerokość tarasu / rozstaw + 1',
+            fields:[
+              ['width','Szerokość tarasu [m]',4],
+              ['spacing','Rozstaw legarów [cm]',50]
+            ],
+            calc:v=>{
+              const n=Math.ceil(v.width/(v.spacing/100))+1;
+              return {value:n+' szt.',steps:`${v.width} / ${(v.spacing/100).toFixed(2)} + 1 ≈ ${n} legarów`}
+            }
+          }
+        ]
+      },
+      {
+        id:'powierzchnie', icon:'📏', title:'Powierzchnie i objętości', desc:'Metry, przekątne, obwody, kubatura.',
+        calculators:[
+          {
+            id:'prostokat', name:'Powierzchnia prostokąta', note:'Posadzka, ściana, działka.',
+            formula:'A = długość × szerokość',
+            fields:[
+              ['length','Długość [m]',5],
+              ['width','Szerokość [m]',3]
+            ],
+            calc:v=>{
+              const a=v.length*v.width;
+              return {value:a.toFixed(2)+' m²',steps:`${v.length} × ${v.width} = ${a.toFixed(2)} m²`}
+            }
+          },
+          {
+            id:'przekatna', name:'Przekątna prostokąta', note:'Kontrola kąta prostego.',
+            formula:'d = √(a² + b²)',
+            fields:[
+              ['a','Bok A [m]',4],
+              ['b','Bok B [m]',3]
+            ],
+            calc:v=>{
+              const d=Math.sqrt(v.a*v.a+v.b*v.b);
+              return {value:d.toFixed(3)+' m',steps:`√(${v.a}² + ${v.b}²) = ${d.toFixed(3)} m`}
+            }
+          },
+          {
+            id:'objetosc', name:'Kubatura pomieszczenia', note:'Objętość powietrza w pomieszczeniu.',
+            formula:'V = długość × szerokość × wysokość',
+            fields:[
+              ['length','Długość [m]',5],
+              ['width','Szerokość [m]',4],
+              ['height','Wysokość [m]',2.6]
+            ],
+            calc:v=>{
+              const vol=v.length*v.width*v.height;
+              return {value:vol.toFixed(2)+' m³',steps:`${v.length} × ${v.width} × ${v.height} = ${vol.toFixed(2)} m³`}
+            }
+          }
+        ]
+      }
+    ];
+
+    let currentCat = categories[0];
+    let currentCalc = currentCat.calculators[0];
+
+    function readValues(calc){
+      const v={};
+      calc.fields.forEach(f=>{
+        const el=document.getElementById('f_'+f[0]);
+        v[f[0]]=parseFloat(String(el.value).replace(',','.'))||0;
+      });
+      return v;
+    }
+
+    function renderCategories(){
+      const grid=document.getElementById('categoryGrid');
+      grid.innerHTML=categories.map(cat=>`
+        <article class="category ${cat.id===currentCat.id?'active':''}" onclick="selectCategory('${cat.id}')">
+          <div class="cat-icon">${cat.icon}</div>
+          <h3>${cat.title}</h3>
+          <p>${cat.desc}</p>
+        </article>
+      `).join('');
+    }
+
+    function renderTabs(){
+      document.getElementById('tabs').innerHTML=categories.map(cat=>`
+        <button class="tab ${cat.id===currentCat.id?'active':''}" onclick="selectCategory('${cat.id}')">${cat.icon} ${cat.title}</button>
+      `).join('');
+    }
+
+    function renderCalcList(){
+      document.getElementById('calcList').innerHTML=currentCat.calculators.map(calc=>`
+        <div class="calc-item ${calc.id===currentCalc.id?'active':''}" onclick="selectCalc('${calc.id}')">
+          <div><b>${calc.name}</b><small>${calc.note}</small></div>
+          <span>›</span>
+        </div>
+      `).join('');
+    }
+
+    function renderCalcBox(){
+      document.getElementById('categoryTitle').textContent=currentCat.title;
+      document.getElementById('categoryDesc').textContent=currentCat.desc;
+      document.getElementById('calcBox').innerHTML=`
+        <h3>${currentCalc.name}</h3>
+        <p style="color:#66707c;line-height:1.55">${currentCalc.note}</p>
+        <div class="formula">${currentCalc.formula}</div>
+        <div class="fields">
+          ${currentCalc.fields.map(f=>`
+            <div class="field">
+              <label for="f_${f[0]}">${f[1]}</label>
+              <input id="f_${f[0]}" type="number" step="any" value="${f[2]}" oninput="calculate()">
+            </div>
+          `).join('')}
+        </div>
+        <div class="result">
+          Wynik:
+          <strong id="resultValue">—</strong>
+          <div class="steps" id="resultSteps"></div>
+        </div>
+      `;
+      calculate();
+    }
+
+    function calculate(){
+      const v=readValues(currentCalc);
+      const r=currentCalc.calc(v);
+      document.getElementById('resultValue').innerHTML=r.value;
+      document.getElementById('resultSteps').innerHTML=r.steps;
+    }
+
+    function selectCategory(id){
+      currentCat=categories.find(c=>c.id===id)||categories[0];
+      currentCalc=currentCat.calculators[0];
+      renderAll();
+      location.hash='kalkulatory';
+    }
+
+    function selectCalc(id){
+      currentCalc=currentCat.calculators.find(c=>c.id===id)||currentCat.calculators[0];
+      renderCalcList();
+      renderCalcBox();
+    }
+
+    function searchCalculators(){
+      const q=document.getElementById('globalSearch').value.toLowerCase().trim();
+      if(!q) return;
+      for(const cat of categories){
+        const calc=cat.calculators.find(c=>
+          c.name.toLowerCase().includes(q) ||
+          c.note.toLowerCase().includes(q) ||
+          cat.title.toLowerCase().includes(q) ||
+          cat.desc.toLowerCase().includes(q)
+        );
+        if(calc){
+          currentCat=cat; currentCalc=calc; renderAll(); location.hash='kalkulatory'; return;
+        }
+      }
+      alert('Nie znaleziono kalkulatora. Spróbuj: beton, farba, dach, schody, spadek, przekątna.');
+    }
+
+    function renderAll(){
+      renderCategories();
+      renderTabs();
+      renderCalcList();
+      renderCalcBox();
+    }
+
+    renderAll();
+  </script>
+</body>
+</html>
